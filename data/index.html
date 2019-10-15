@@ -141,7 +141,7 @@ This is a tool to make shortcuts and create your data pragmatically via GraphQL 
   <span class="hljs-comment">// create a post and save its Id</span>
   response = <span class="hljs-keyword">await</span> <span class="hljs-built_in">I</span>.sendMutation(
     <span class="hljs-string">'mutation createPost($input: PostInput!) { createPost(input: $input) { id }}'</span>,
-    { 
+    {
       <span class="hljs-attr">input</span> : {
         <span class="hljs-attr">author</span>: user.data.id,
         <span class="hljs-attr">body</span>: <span class="hljs-string">'some text'</span>,
@@ -279,8 +279,26 @@ By doing this we can make requests within the current browser session without a 
 <blockquote>
 <p>Sharing browser session with ApiDataFactory or GraphQLDataFactory can be especially useful when you test Single Page Applications</p>
 </blockquote>
-<p>For example, let's see how to configure ApiDataFactory alongside with WebDriver to share cookies:</p>
-<pre><code class="hljs css language-js">  ApiDataFactory: {
+<p>Since CodeceptJS 2.3.3 there is a simple way to enable shared session for browser and data helpers.
+Install <a href="https://github.com/codecept-js/configure"><code>@codeceptjs/configure</code></a> package:</p>
+<pre><code class="hljs">npm i @codeceptjs/configure --save
+</code></pre>
+<p>Import <code>setSharedCookies</code> function and call it inside a config:</p>
+<pre><code class="hljs css language-js"><span class="hljs-comment">// in codecept.conf.js</span>
+<span class="hljs-keyword">const</span> { setSharedCookies } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@codeceptjs/configure'</span>);
+
+<span class="hljs-comment">// share cookies between browser helpers and REST/GraphQL</span>
+setSharedCookies();
+
+exports.config = {}
+</code></pre>
+<p>Without <code>setSharedCookies</code> you will need to update the config manually, so a data helper could receive cookies from a browser to make a request. If you would like to configure this process manually, here is an example of doing so:</p>
+<pre><code class="hljs css language-js">
+<span class="hljs-keyword">let</span> cookies; <span class="hljs-comment">// share cookies</span>
+
+exports.config = {
+<span class="hljs-attr">helpers</span>: {
+  <span class="hljs-attr">ApiDataFactory</span>: {
     <span class="hljs-attr">endpoint</span>: <span class="hljs-string">'http://local.app/api'</span>,
     <span class="hljs-attr">cleanup</span>: <span class="hljs-literal">true</span>,
     <span class="hljs-attr">headers</span>: {
@@ -294,7 +312,9 @@ By doing this we can make requests within the current browser session without a 
       }
     },
     <span class="hljs-attr">onRequest</span>: <span class="hljs-keyword">async</span> (request) =&gt; {
-      <span class="hljs-keyword">let</span> cookies = <span class="hljs-keyword">await</span> codeceptjs.container.helpers(<span class="hljs-string">'WebDriver'</span>).grabCookie();
+      <span class="hljs-comment">// get a cookie if it's not obtained yet</span>
+      <span class="hljs-keyword">if</span> (cookies) cookies = <span class="hljs-keyword">await</span> codeceptjs.container.helpers(<span class="hljs-string">'WebDriver'</span>).grabCookie();
+      <span class="hljs-comment">// add cookies to request for a current request</span>
       request.headers = { <span class="hljs-attr">Cookie</span>: cookies.map(<span class="hljs-function"><span class="hljs-params">c</span> =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${c.name}</span>=<span class="hljs-subst">${c.value}</span>`</span>).join(<span class="hljs-string">'; '</span>) };
     },
   }
@@ -302,12 +322,13 @@ By doing this we can make requests within the current browser session without a 
     <span class="hljs-attr">url</span>: <span class="hljs-string">'https://local.app/'</span>,
     <span class="hljs-attr">browser</span>: <span class="hljs-string">'chrome'</span>,
   }
+}
 </code></pre>
 <p>In this case we are accessing WebDriver helper. However, you can replace WebDriver with any helper you use.</p>
 <p>The same can be done with GraphQLDataFactory.</p>
 <p>The order of helpers is important! ApiDataFactory will clean up created users after a test,
 so it needs browser to be still opened to obtain its cookies.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 8/15/2019</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/bdd"><span class="arrow-prev">← </span><span>Behavior Driven Development</span></a><a class="docs-next button" href="/parallel"><span>Parallel Execution</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#rest">REST</a></li><li><a href="#graphql">GraphQL</a></li><li><a href="#data-generation-with-factories">Data Generation with Factories</a><ul class="toc-headings"><li><a href="#api-data-factory">API Data Factory</a></li><li><a href="#graphql-data-factory">GraphQL Data Factory</a></li></ul></li><li><a href="#requests-using-browser-session">Requests Using Browser Session</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/logo.svg" alt="CodeceptJS" width="66" height="58"/></a><div><h5>Docs</h5><a href="/quickstart">QuickStart</a><a href="/basics">Guides</a><a href="/reference">Reference</a></div><div><h5>Community</h5><a href="https://join.slack.com/t/codeceptjs/shared_invite/enQtMzA5OTM4NDM2MzA4LWE4MThhN2NmYTgxNTU5MTc4YzAyYWMwY2JkMmZlYWI5MWQ2MDM5MmRmYzZmYmNiNmY5NTAzM2EwMGIwOTNhOGQ">Slack Chat</a><a href="https://codecept.discourse.group" target="_blank" rel="noreferrer noopener">Community Forum</a><a href="http://stackoverflow.com/questions/tagged/codeceptjs" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://twitter.com/codeceptjs" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="https://github.com/Codeception/CodeceptJS">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/codeception/codeceptjs/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><a href="http://sdclabs.com/codeceptjs?utm_source=codecept.io&amp;utm_medium=footer&amp;utm_term=link&amp;utm_campaign=reference">Commercial Support</a><a href="http://sdclabs.com/trainings/web-automation-codeceptjs?utm_source=codecept.io&amp;utm_medium=top_menu&amp;utm_term=link&amp;utm_campaign=reference">Trainings</a></div></section><section class="copyright">Copyright © 2019 CodeceptJS</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 10/15/2019</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/bdd"><span class="arrow-prev">← </span><span>Behavior Driven Development</span></a><a class="docs-next button" href="/parallel"><span>Parallel Execution</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#rest">REST</a></li><li><a href="#graphql">GraphQL</a></li><li><a href="#data-generation-with-factories">Data Generation with Factories</a><ul class="toc-headings"><li><a href="#api-data-factory">API Data Factory</a></li><li><a href="#graphql-data-factory">GraphQL Data Factory</a></li></ul></li><li><a href="#requests-using-browser-session">Requests Using Browser Session</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/logo.svg" alt="CodeceptJS" width="66" height="58"/></a><div><h5>Docs</h5><a href="/quickstart">QuickStart</a><a href="/basics">Guides</a><a href="/reference">Reference</a></div><div><h5>Community</h5><a href="https://join.slack.com/t/codeceptjs/shared_invite/enQtMzA5OTM4NDM2MzA4LWE4MThhN2NmYTgxNTU5MTc4YzAyYWMwY2JkMmZlYWI5MWQ2MDM5MmRmYzZmYmNiNmY5NTAzM2EwMGIwOTNhOGQ">Slack Chat</a><a href="https://codecept.discourse.group" target="_blank" rel="noreferrer noopener">Community Forum</a><a href="http://stackoverflow.com/questions/tagged/codeceptjs" target="_blank" rel="noreferrer noopener">Stack Overflow</a><a href="https://twitter.com/codeceptjs" target="_blank" rel="noreferrer noopener">Twitter</a></div><div><h5>More</h5><a href="https://github.com/Codeception/CodeceptJS">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/codeception/codeceptjs/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><a href="http://sdclabs.com/codeceptjs?utm_source=codecept.io&amp;utm_medium=footer&amp;utm_term=link&amp;utm_campaign=reference">Commercial Support</a><a href="http://sdclabs.com/trainings/web-automation-codeceptjs?utm_source=codecept.io&amp;utm_medium=top_menu&amp;utm_term=link&amp;utm_campaign=reference">Trainings</a></div></section><section class="copyright">Copyright © 2019 CodeceptJS</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
