@@ -73,7 +73,7 @@
     "@codeceptjs/detox-helper": "^1.0.1",
     "@pollyjs/adapter-puppeteer": "^2.6.2",
     "@pollyjs/core": "^2.6.2",
-    "@types/inquirer": "^0.0.35",
+    "@types/inquirer": "^6.5.0",
     "@types/node": "^8.10.54",
     "@wdio/sauce-service": "^5.13.2",
     "@wdio/selenium-standalone-service": "^5.13.2",
