@@ -107,7 +107,7 @@
     "typescript": "^2.9.2",
     "wdio-docker-service": "^1.5.0",
     "webdriverio": "^5.13.2",
-    "xmldom": "^0.1.27",
+    "xmldom": "^0.6.0",
     "xpath": "0.0.27"
   },
   "engines": {
