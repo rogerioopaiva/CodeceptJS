@@ -1,0 +1,26 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: xmldom
+    versions:
+    - 0.5.0
+  - dependency-name: ts-morph
+    versions:
+    - 10.0.1
+    - 9.1.0
+  - dependency-name: mocha
+    versions:
+    - 8.2.1
+    - 8.3.1
+  - dependency-name: "@types/mocha"
+    versions:
+    - 8.2.0
+    - 8.2.1
+  - dependency-name: inquirer
+    versions:
+    - 7.3.3
