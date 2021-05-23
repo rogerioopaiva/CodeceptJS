@@ -80,7 +80,7 @@
     "@wdio/utils": "^5.13.2",
     "apollo-server-express": "^2.9.4",
     "chai": "^3.4.1",
-    "chai-as-promised": "^5.2.0",
+    "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
     "documentation": "^8.1.2",
     "eslint": "^4.17.0",
